@@ -99,6 +99,6 @@ class HillClimber:
         # Ensure the best folding is applied to the graph before returning
         self.graph.apply_folding(self.best_folding)
         return self.best_folding, self.best_score
-
+    
     def __repr__(self):
         return f"HillClimber(sequence={self.protein_sequence}, dimension={self.dimension})"
