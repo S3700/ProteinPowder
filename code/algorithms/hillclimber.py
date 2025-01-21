@@ -2,16 +2,18 @@ import random
 from code.classes.graph import Graph
 
 class HillClimber:
-    def __init__(self, protein_sequence, dimension=3, max_iterations=10000):
+    def __init__(self, protein_sequence, dimension=3, max_iterations=10000, num_valid_folds=1):
         """
         Initialize the HillClimber algorithm for finding the best folding.
         """
         self.protein_sequence = protein_sequence
         self.dimension = dimension
         self.max_iterations = max_iterations
+        self.num_valid_folds = num_valid_folds
         self.graph = Graph(protein_sequence, dimension)
         self.best_score = float('inf')
         self.best_folding = None
+        self.all_scores = []
 
     def generate_random_folding(self):
         """
@@ -34,7 +36,7 @@ class HillClimber:
         folding, score = None, None
         while folding is None:
             folding, score = self.generate_random_folding()
-        return folding, score
+        return list(folding), score
 
     def generate_neighbors(self, current_folding):
         """
@@ -64,41 +66,48 @@ class HillClimber:
         """
         Perform Hill Climbing to find the best folding for the protein sequence.
         """
-        # Get initial state
-        current_folding, current_score = self.get_initial_state()
-        self.best_folding = current_folding
-        self.best_score = current_score
+        valid_attempts = 0
+        best_score = float('inf')
+        best_folding = None
+        self.all_scores = []  # Reset scores list
+
+        while valid_attempts < self.num_valid_folds:
+            # Get random initial state for each valid fold
+            current_folding, current_score = self.get_initial_state()
+            initial_score = current_score  # Store initial score
+            iterations = 0
+
+            # Perform hill climbing for this fold
+            while iterations < self.max_iterations:
+                neighbors = self.generate_neighbors(current_folding)
+                
+                if not neighbors:
+                    break
+
+                best_neighbor = min(neighbors, key=lambda x: x[1])
+                neighbor_folding, neighbor_score = best_neighbor
+
+                if neighbor_score >= current_score:
+                    break
+
+                current_folding = neighbor_folding
+                current_score = neighbor_score
+                iterations += 1
+
+            # After hill climbing is complete for this fold
+            self.all_scores.append(current_score)  # Store only the final score for this fold
+            
+            # Update best overall solution if current is better
+            if current_score < best_score:
+                best_score = current_score
+                best_folding = current_folding.copy()
+
+            valid_attempts += 1
+
+        # After all folds are complete, apply the best folding to the graph
+        self.graph.apply_folding(best_folding)
         
-        iterations = 0
-        while iterations < self.max_iterations:
-            # Generate and evaluate neighboring states
-            neighbors = self.generate_neighbors(current_folding)
-            
-            if not neighbors:
-                break  # No valid neighbors found
-            
-            # Find the best neighbor
-            best_neighbor = min(neighbors, key=lambda x: x[1])
-            neighbor_folding, neighbor_score = best_neighbor
-            
-            # If no better neighbor is found, a local optimum is reached
-            if neighbor_score >= current_score:
-                break
-            
-            # Move to the better neighbor
-            current_folding = neighbor_folding
-            current_score = neighbor_score
-            
-            # Update best solution if current is better
-            if current_score < self.best_score:
-                self.best_score = current_score
-                self.best_folding = current_folding.copy()
-            
-            iterations += 1
-        
-        # Ensure the best folding is applied to the graph before returning
-        self.graph.apply_folding(self.best_folding)
-        return self.best_folding, self.best_score
+        return best_folding, best_score, self.all_scores
     
     def __repr__(self):
         return f"HillClimber(sequence={self.protein_sequence}, dimension={self.dimension})"
