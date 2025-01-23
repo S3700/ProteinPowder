@@ -1,4 +1,4 @@
-from code.algorithms.depthfirst2 import DepthFirst  # Change this based on the algorithm you want to use
+from code.algorithms.hillclimber import HillClimber  # Change this based on the algorithm you want to use
 from code.visualisation.visualise import print_visual
 import matplotlib.pyplot as plt
 import time
@@ -9,7 +9,7 @@ def main():
     
     for protein in proteins:
         print(f"\nProcessing protein: {protein}")
-        random_solver = DepthFirst(protein, dimension=3)
+        random_solver = HillClimber(protein, dimension=3, num_valid_folds=10)
         
         # Find the best folding and get all scores
         best_folding, best_score, all_scores = random_solver.find_best_solution()
