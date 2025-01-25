@@ -2,13 +2,13 @@ import random
 from code.classes.graph import Graph
 
 class RandomSolution:
-    def __init__(self, protein_sequence, dimension=3, num_valid_volds=1):
+    def __init__(self, protein_sequence, dimension=3, num_valid_folds=1):
         """
         Initialize the RandomSolution algorithm for finding the best folding.
         """
         self.protein_sequence = protein_sequence
         self.dimension = dimension
-        self.num_valid_volds = num_valid_volds
+        self.num_valid_folds = num_valid_folds
         self.graph = Graph(protein_sequence, dimension)
         self.all_scores = []  # List to store all valid folding scores
 
@@ -29,7 +29,7 @@ class RandomSolution:
         best_score = float('inf')
         valid_attempts = 0
         
-        while valid_attempts < self.num_valid_volds:
+        while valid_attempts < self.num_valid_folds:
             folding = self.generate_random_folding()
 
             # Apply the folding and check if it's valid (no crossings)
