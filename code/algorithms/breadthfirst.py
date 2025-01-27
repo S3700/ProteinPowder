@@ -3,7 +3,7 @@ import random
 import math
 
 class BreadthFirstSearch:
-    def __init__(self, protein_sequence, frame_size=5, max_folds=500, keep=0.005):
+    def __init__(self, protein_sequence, frame_size=5, max_folds=120, keep=0.025):
         self.protein_sequence = protein_sequence
         self.frame_size = frame_size
         self.max_folds = max_folds
@@ -18,6 +18,7 @@ class BreadthFirstSearch:
             end = min(i + self.frame_size, sequence_length)
             frame_sequences[i // self.frame_size] = self.protein_sequence[i:end]
         
+        print(f"Generated {len(frame_sequences)} windows: {frame_sequences}")
         return frame_sequences
 
     def bfs_r_frames(self, current_frame, num_r_frames):
@@ -45,16 +46,18 @@ class BreadthFirstSearch:
         score = self.graph.calculate_score()  
         return score
 
-    def bfs_cull(self, foldings):
+    def bfs_cull(self, foldings, current_index):
         """
-        Cull all sequences except the top 5% based on their scores.
+        Cull all sequences except the top 10% based on their scores.
         """
         if not foldings:
             print("No foldings to cull.")
             return []
 
+        print(f"Culling at window {current_index + 1}")
+
         scores = [self.evaluate_folding(folding) for folding in foldings]
-        num_to_keep = max(1, int(len(scores) * self.keep))  
+        num_to_keep = max(1, int(len(scores) * self.keep)) 
         sorted_foldings = sorted(zip(foldings, scores), key=lambda x: x[1])
         culled_foldings = [folding for folding, score in sorted_foldings[:num_to_keep]]
 
@@ -71,23 +74,15 @@ class BreadthFirstSearch:
 
         foldings = []
         random_foldings = self.bfs_r_frames(frames[current_index], self.max_folds)
-        culled_foldings = self.bfs_cull(random_foldings)
-
-        possible_directions = [1, -1, 2, -2, 3, -3]
+        culled_foldings = self.bfs_cull(random_foldings, current_index)
 
         for folding in culled_foldings:
             for prev_folding in current_foldings:
-                best_new_folding = None
-                best_score = float('inf')
-                for direction in possible_directions:
-                    new_folding = prev_folding + [direction] + folding[1:]
-                    score = self.evaluate_folding(new_folding)
-                    if score < best_score:
-                        best_score = score
-                        best_new_folding = new_folding
-                foldings.append(best_new_folding)
+                new_folding = prev_folding + folding
+                foldings.append(new_folding)
 
         return self.bfs_recursive(frames, current_index + 1, foldings)
+
 
     def bfs(self):
         """
@@ -95,7 +90,7 @@ class BreadthFirstSearch:
         """
         frames = self.generate_frames()
         initial_foldings = self.bfs_r_frames(frames[0], self.max_folds)
-        culled_foldings = self.bfs_cull(initial_foldings)
+        culled_foldings = self.bfs_cull(initial_foldings, 0)
         all_foldings = self.bfs_recursive(frames, 1, culled_foldings)
         return all_foldings
 
@@ -129,3 +124,5 @@ class BreadthFirstSearch:
 
     def __repr__(self):
         return f"BreadthFirst(sequence={self.protein_sequence}, dimension={self.dimension})"
+    
+    
