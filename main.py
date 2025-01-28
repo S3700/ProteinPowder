@@ -8,6 +8,7 @@ from code.algorithms.simannealingv2 import SimulatedAnnealingv2
 from code.algorithms.random import RandomSolution
 from code.algorithms.bruteforce import Bruteforce
 from code.algorithms.breadthfirst import BreadthFirstSearch
+from code.algorithms.depthfirst2 import DepthFirst
 from code.visualisation.visualise import print_visual
 from code.classes.experiment import TimedExperiment
 import matplotlib.pyplot as plt
@@ -15,10 +16,11 @@ import matplotlib.pyplot as plt
 
 def main():
     proteins = ["HCPHPHPHCHHHHPCCPPHPPPHPPPPCPPPHPPPHPHHHHCHPHPHPHH"]  # Input protein sequence
-    algorithm = SimulatedAnnealingv1  # Input algorithm
+    algorithm =  SimulatedAnnealingv1 # Input algorithm
+    runtime = 10 # Input runtime
 
     # Initialize experiment handler
-    experiment = TimedExperiment(algorithm, runtime=100)
+    experiment = TimedExperiment(algorithm, runtime)
 
     for protein in proteins:
         print(f"\nProcessing protein: {protein}")
