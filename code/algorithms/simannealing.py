@@ -1,12 +1,14 @@
 import random
 import math
 from code.classes.graph import Graph
+import matplotlib.pyplot as plt
+import numpy as np
 
 class SimulatedAnnealing:
     def __init__(self, protein_sequence, dimension=3, 
                  max_iterations=10000, 
-                 initial_temperature=100, 
-                 cooling_rate=0.003, 
+                 initial_temperature=500, 
+                 cooling_rate=0.0015, 
                  num_valid_folds=1):
         """
         Initialize the Simulated Annealing algorithm for finding the best protein folding.
@@ -64,13 +66,14 @@ class SimulatedAnnealing:
         return neighbor
 
     def find_best_solution(self):
-        """
-        Perform Simulated Annealing to find the best folding for the protein sequence.
-        """
         valid_attempts = 0
         best_overall_score = float('inf')
         best_overall_folding = None
-        self.all_scores = []  # Reset scores list
+        self.all_scores = []
+        
+        temperature_data = []  # To store temperature values
+        score_data = []  # To store score values
+        iteration_data = []  # To store iteration numbers
 
         while valid_attempts < self.num_valid_folds:
             # Get random initial state for each valid fold
@@ -84,7 +87,7 @@ class SimulatedAnnealing:
             best_score = current_score
             
             # Simulated Annealing iterations
-            for iteration in range(self.max_iterations):
+            for _ in range(self.max_iterations):
                 # Generate a neighbor
                 neighbor = self.generate_neighbor(current_folding)
                 
@@ -111,9 +114,10 @@ class SimulatedAnnealing:
                 # Cool down the temperature
                 temperature *= (1 - self.cooling_rate)
                 
-                # Optional: early stopping if temperature is very low
-                if temperature < 0.1:
-                    break
+                # Store the temperature, score, and iteration for plotting
+                temperature_data.append(temperature)
+                score_data.append(best_score)
+                iteration_data.append(iteration)
             
             # Store the best score for this fold
             self.all_scores.append(best_score)
@@ -127,8 +131,32 @@ class SimulatedAnnealing:
 
         # Apply the best folding to the graph
         self.graph.apply_folding(best_overall_folding)
+
+        # Plot the results
+        #self.plot_results(temperature_data, score_data, iteration_data)
         
         return best_overall_folding, best_overall_score, self.all_scores
+    
+    def plot_results(self, temperature_data, score_data, iteration_data):
+        fig, ax = plt.subplots(1, 2, figsize=(14, 6))
+
+        # Plot temperature vs score over iterations
+        ax[0].plot(iteration_data, score_data, label="Score")
+        ax[0].set_xlabel("Iteration")
+        ax[0].set_ylabel("Score")
+        ax[0].set_title("Score vs. Iteration")
+        ax[0].grid(True)
+        
+        # Plot temperature vs score
+        ax[1].scatter(temperature_data, score_data, c=iteration_data, cmap="viridis", s=5)
+        ax[1].set_xlabel("Temperature")
+        ax[1].set_ylabel("Score")
+        ax[1].set_title("Score vs. Temperature")
+        ax[1].grid(True)
+
+        plt.tight_layout()
+        plt.show()
+
 
     def __repr__(self):
         return f"SimulatedAnnealing(sequence={self.protein_sequence}, dimension={self.dimension})"
