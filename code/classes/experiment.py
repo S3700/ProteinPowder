@@ -23,58 +23,60 @@ class TimedExperiment:
         """
         start_time = time.time()
         solver = self.algorithm(protein)  # Initialize algorithm
-    
+
         best_folding = None
         best_score = float('inf')
         all_scores = []
 
-        last_print_time = 0  # Track time for periodic updates
+        while True:
+            current_time = time.time()
+            elapsed_time = current_time - start_time
 
-        while (time.time() - start_time) < self.runtime:
+            # Stop immediately if runtime has exceeded
+            if elapsed_time >= self.runtime:
+                break  
+
+            # Run the algorithm
             folding, score, scores_from_run = solver.find_best_solution()
-        
+
+            # Ensure all scores are collected
             all_scores.extend(scores_from_run)
-        
+
+            # Update best score if applicable
             if score < best_score:
                 best_score = score
                 best_folding = folding
-        
-            # Print progress every 10% of total runtime
-            elapsed_time = time.time() - start_time
-            if elapsed_time - last_print_time > self.runtime * 0.1:
-                last_print_time = elapsed_time
-                print(f"{elapsed_time:.1f}/{self.runtime}s elapsed... Current folding score: {score}")
 
-        # Save results
+        # Save results to CSV
         self.save_results(all_scores, best_score, len(all_scores), elapsed_time, protein)
-    
-        print(f"{self.algorithm.__name__} finished. Best score: {best_score}")
 
         return best_folding, best_score, all_scores
 
 
     def save_results(self, all_scores, best_score, num_solutions, runtime, protein):
         """
-        Save experiment results (periodically) to a CSV file.
+        Save experiment results to a CSV file.
         """
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         filename = f"{self.algorithm.__name__}_{timestamp}.csv"
         filepath = os.path.join(self.output_dir, filename)
 
-        # Append data instead to save progress periodically
-        with open(filepath, 'a', newline='') as f:
+        # Write full results to ensure no data loss
+        with open(filepath, 'w', newline='') as f:  # 'w' to overwrite file each time
             writer = csv.writer(f)
-            if f.tell() == 0:
-                writer.writerow(['Experiment Info', 'Values'])
-                writer.writerow(['Algorithm', self.algorithm.__name__])
-                writer.writerow(['Protein', protein])
-                writer.writerow(['Runtime (s)', f"{runtime:.2f}"])
-                writer.writerow(['Total Solutions', num_solutions])
-                writer.writerow(['Best Score', best_score])
-                writer.writerow(['Average Score', f"{sum(all_scores) / len(all_scores):.2f}"])
-                writer.writerow([])
-                writer.writerow(['Score Index', 'Score'])
-        
-            # Append only new results
-            for i, score in enumerate(all_scores[-5:]):  # Save last 5 results periodically
+
+            # Write experiment metadata
+            writer.writerow(['Experiment Info', 'Values'])
+            writer.writerow(['Algorithm', self.algorithm.__name__])
+            writer.writerow(['Protein', protein])
+            writer.writerow(['Runtime (s)', f"{runtime:.2f}"])
+            writer.writerow(['Total Solutions', num_solutions])
+            writer.writerow(['Best Score', best_score])
+            writer.writerow(['Average Score', f"{sum(all_scores) / len(all_scores):.2f}"])
+            writer.writerow([])
+            writer.writerow(['Score Index', 'Score'])
+
+            # Write all recorded scores
+            for i, score in enumerate(all_scores):  # Save **all** scores
                 writer.writerow([i, score])
+
