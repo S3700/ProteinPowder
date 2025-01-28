@@ -87,7 +87,7 @@ class SimulatedAnnealing:
             best_score = current_score
             
             # Simulated Annealing iterations
-            for _ in range(self.max_iterations):
+            for iteration in range(self.max_iterations):
                 # Generate a neighbor
                 neighbor = self.generate_neighbor(current_folding)
                 
