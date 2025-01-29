@@ -46,7 +46,7 @@ class TimedExperiment:
                 last_update_time = current_time  # Reset the last update time
 
             # Run the algorithm and get folding, score, and scores from the current run
-            folding, score, scores_from_run = solver.find_best_solution()
+            folding, score, scores_from_run = solver.find_solutions()
 
             # Calculate elapsed time after each run
             elapsed_time = time.time() - start_time
@@ -54,18 +54,23 @@ class TimedExperiment:
             # Check if the solution was found within the runtime limit
             if elapsed_time < self.runtime:
                 # Only collect scores within the time limit
-                all_scores.extend(scores_from_run)
+                if scores_from_run:  # Only extend if there are scores
+                    all_scores.extend(scores_from_run)
                 final_runtime = elapsed_time
 
                 # Update best score if applicable and within time limit
-                if score < best_score:
+                if score is not None and score < best_score:
                     best_score = score
                     best_folding = folding
             else:
                 break  # Exit the loop if algorithm exceeds the runtime
 
-        # Save results to CSV, ensuring only valid scores are saved
-        self.save_results(all_scores, best_score, len(all_scores), final_runtime, protein)
+        # Save results only if we found any valid solutions
+        if all_scores:
+            self.save_results(all_scores, best_score, len(all_scores), final_runtime, protein)
+        else:
+            print("\nNo valid solutions found within the time limit.")
+            return None, None, []
 
         return best_folding, best_score, all_scores
 
@@ -73,6 +78,9 @@ class TimedExperiment:
         """
         Save experiment results to a CSV file.
         """
+        if not all_scores:  # Safety check
+            return
+        
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         filename = f"{self.algorithm.__name__}_{timestamp}.csv"
         filepath = os.path.join(self.output_dir, filename)
