@@ -19,13 +19,22 @@ conda install --file requirements.txt
 ```
 
 ### Gebruik
-
-In main.py kies een eiwit, algoritme en runtime (in seconden). Run vervolgens het experiment door het aanroepen van:
+#### Stap 1
+In main.py kies eerst een eiwit bestaande uit een combinatie van C, H, P. 
+#### Stap 2
+Kies vervolgens een algoritme naar keuze:
+ - RandomSolution: Dit algoritme genereert een willekeurige uitgevouwen keten en kiest steeds een willekeurige richting voor de aminozuren om uit te vouwen. Alleen de uitgevouwen ketens die zichzelf niet kruisen (d.w.z. valide uitvouwen) worden behouden.
+ - HillClimber: Dit algoritme begint met een willekeurige uitgevouwen keten (een valide uitgevouwen keten gegenereerd door RandomSolution). Vervolgens worden er kleine aanpassingen aan de keten gemaakt. Het algoritme kiest altijd de beste wijziging (de verbetering van de score) en blijft dit doen totdat er geen betere oplossing meer wordt gevonden, wat resulteert in een lokaal optima. HillClimber kan niet uit een lokaal optima ontsnappen.
+ - SimulatedAnnealing: Dit algoritme begint ook met een willekeurige uitgevouwen keten, maar in plaats van altijd de beste wijziging te kiezen, wordt er af en toe een slechtere uitvouwing geaccepteerd. Dit gebeurt volgens een afkoelingsschema, waarbij de kans om een slechtere uitvouwing te accepteren afneemt naarmate het algoritme vordert. Dit stelt het algoritme in staat om uit lokale optima te ontsnappen en uiteindelijk een betere algehele oplossing elders te vinden.
+#### Stap 3
+Bepaal de runtijd van het experiment in seconden.
+#### Stap 4 
+Run vervolgens het experiment door het aanroepen van:
 ```
 PYTHONPATH=code python main.py
 ```
 
-Zie de progressie van het experiment in de terminal en vervolgens de beste uitvouwing in een 3d omgeving, gevolgd door een histogram van alle gevonden uitvouwingsscores.
+Zie de progressie van het experiment in de terminal en vervolgens de beste uitvouwing in een 3d omgeving, gevolgd door een histogram van alle gevonden uitvouwingsscores. Verder worden de resultaten en andere gegevens uit het experiment opgeslagen in een folder genaamd: 'experiment_results', met voor elke run van het experiment een aparte file. Deze folder wordt automatisch aangemaakt tijdens het experiment. 
 
 ### Structuur
 
