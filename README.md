@@ -37,6 +37,6 @@ De hierop volgende lijst beschrijft de belangrijkste mappen en files in het proj
   - **/code/visualisation**: bevat de code voor de visualisatie
 
 ## Auteurs
-- Robin
+- Robin Wierda
 - Sem Loogman
 
