@@ -9,9 +9,11 @@ from code.classes.experiment import TimedExperiment
 import matplotlib.pyplot as plt
 
 def main():
-    proteins = ["HCPHPHPHCHHHHPCCPPHPPPHPPPPCPPPHPPPHPHHHHCHPHPHPHH"]  # Input protein sequence
-    algorithm =  SimulatedAnnealing # Input algorithm
-    max_runtime = 1000 # Input runtime
+    #---------------------------------Choose your protein, algorithm and runtime-------------------------------------#
+    proteins = ["HCPHPHPHCHHHHPCCPPHPPPHPPPPCPPPHPPPHPHHHHCHPHPHPHH"] # Max 50 characters
+    algorithm =  SimulatedAnnealing
+    max_runtime = 30 # in seconds
+    #----------------------------------------------------------------------------------------------------------------#
 
     # Initialize experiment handler
     experiment = TimedExperiment(algorithm, max_runtime)
@@ -26,12 +28,12 @@ def main():
         # Output the best folding and its score
         print(f"Best folding: {best_folding}\nScore: {best_score}")
 
-        # Use the existing solver instead of creating a new instance
+        # Visualize the best folding from the experiment
         experiment_solver = experiment.algorithm(protein)
         experiment_solver.graph.apply_folding(best_folding)
         print_visual(protein, best_folding, experiment_solver.graph)
 
-        # Create histogram of all scores
+        # Create histogram of all scores from the experiment
         plt.figure(figsize=(10, 6))
         plt.hist(all_scores, bins=min(50, len(set(all_scores)) or 1))
         plt.title(f'Distribution of Scores for {protein}\nBest Score: {best_score}')
