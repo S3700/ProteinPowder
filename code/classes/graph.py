@@ -48,6 +48,7 @@ class Graph:
         """
         Apply the folding configuration to the graph.
         """
+        # Check if folding exists
         if folding is None:
             print("Error: Folding is None.")
             return False
@@ -84,7 +85,7 @@ class Graph:
     
     def calculate_score(self):
         """
-        Calculate the total score for the folding by considering all amino acid pairs.
+        Calculate the total score for the folding by considering all amino acid bonds.
         """
         total_score = 0
         
@@ -116,6 +117,4 @@ class Graph:
         return  (diff_x == 1 and diff_y == 0 and diff_z == 0) or \
                 (diff_x == 0 and diff_y == 1 and diff_z == 0) or \
                 (diff_x == 0 and diff_y == 0 and diff_z == 1)
-
-    def __repr__(self):
-        return f"Graph({self.protein_sequence}, Score: {self.score})"
+    

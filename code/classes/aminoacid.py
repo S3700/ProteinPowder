@@ -25,6 +25,3 @@ class Aminoacid:
         elif (self.aa_type == 'H' and neighbour.aa_type == 'C') or (self.aa_type == 'C' and neighbour.aa_type == 'H'):
             return -1  # H-C or C-H bond
         return 0  # No bonds
-    
-    def __repr__(self):
-        return f"Aminoacid({self.aa_type}, {self.position})"

@@ -3,7 +3,7 @@ from code.algorithms.random import RandomSolution
 from code.algorithms.hillclimber import HillClimber
 from code.algorithms.simannealing import SimulatedAnnealing
 from code.algorithms.breadthfirst import BreadthFirstSearch
-from code.algorithms.depthfirst2 import DepthFirst
+from code.algorithms.depthfirst import DepthFirstSearch
 from code.visualisation.visualise import print_visual
 from code.classes.experiment import TimedExperiment
 import matplotlib.pyplot as plt
