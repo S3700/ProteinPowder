@@ -1,12 +1,7 @@
-from code.algorithms.hillclimberv1 import HillClimberv1
-from code.algorithms.hillclimberv2 import HillClimberv2
-from code.algorithms.hillclimberv3 import HillClimberv3
-from code.algorithms.hillclimberv4 import HillClimberv4
-from code.algorithms.hillclimberv5 import HillClimberv5
-from code.algorithms.simannealingv1 import SimulatedAnnealingv1
-from code.algorithms.simannealingv2 import SimulatedAnnealingv2
-from code.algorithms.random import RandomSolution
 from code.algorithms.bruteforce import Bruteforce
+from code.algorithms.random import RandomSolution
+from code.algorithms.hillclimber import HillClimber
+from code.algorithms.simannealing import SimulatedAnnealing
 from code.algorithms.breadthfirst import BreadthFirstSearch
 from code.algorithms.depthfirst2 import DepthFirst
 from code.visualisation.visualise import print_visual
@@ -16,7 +11,7 @@ import matplotlib.pyplot as plt
 
 def main():
     proteins = ["HCPHPHPHCHHHHPCCPPHPPPHPPPPCPPPHPPPHPHHHHCHPHPHPHH"]  # Input protein sequence
-    algorithm =  SimulatedAnnealingv1 # Input algorithm
+    algorithm =  SimulatedAnnealing # Input algorithm
     runtime = 10 # Input runtime
 
     # Initialize experiment handler

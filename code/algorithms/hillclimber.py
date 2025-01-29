@@ -1,7 +1,7 @@
 import random
 from code.classes.graph import Graph
 
-class HillClimberv1:
+class HillClimber:
     def __init__(self, protein_sequence, dimension=3, max_iterations=10000, num_valid_folds=1):
         """
         Initialize the HillClimber algorithm for finding the best folding.

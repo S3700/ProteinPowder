@@ -2,7 +2,7 @@ import random
 import math
 from code.classes.graph import Graph
 
-class SimulatedAnnealingv1:
+class SimulatedAnnealing:
     def __init__(self, protein_sequence, dimension=3, 
                  max_iterations=10000, 
                  initial_temperature=10, 
