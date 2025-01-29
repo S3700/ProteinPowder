@@ -8,14 +8,13 @@ from code.visualisation.visualise import print_visual
 from code.classes.experiment import TimedExperiment
 import matplotlib.pyplot as plt
 
-
 def main():
     proteins = ["HCPHPHPHCHHHHPCCPPHPPPHPPPPCPPPHPPPHPHHHHCHPHPHPHH"]  # Input protein sequence
     algorithm =  SimulatedAnnealing # Input algorithm
-    runtime = 10 # Input runtime
+    max_runtime = 1000 # Input runtime
 
     # Initialize experiment handler
-    experiment = TimedExperiment(algorithm, runtime)
+    experiment = TimedExperiment(algorithm, max_runtime)
 
     for protein in proteins:
         print(f"\nProcessing protein: {protein}")
@@ -25,7 +24,7 @@ def main():
         best_folding, best_score, all_scores = experiment.run(protein)
 
         # Output the best folding and its score
-        print(f"Best folding found:\nFolding: {best_folding}\nScore: {best_score}")
+        print(f"Best folding: {best_folding}\nScore: {best_score}")
 
         # Use the existing solver instead of creating a new instance
         experiment_solver = experiment.algorithm(protein)

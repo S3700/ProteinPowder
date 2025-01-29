@@ -1,12 +1,11 @@
 from .aminoacid import Aminoacid
 
 class Graph:
-    def __init__(self, protein_sequence, dimension=3):
+    def __init__(self, protein_sequence):
         """
         Initialize the Graph to store amino acids and manage folding.
         """
         self.protein_sequence = protein_sequence
-        self.dimension = dimension
         self.amino_acids = self.create_amino_acids(protein_sequence)
         self.score = 0
     
@@ -49,6 +48,10 @@ class Graph:
         """
         Apply the folding configuration to the graph.
         """
+        if folding is None:
+            print("Error: Folding is None.")
+            return False
+        
         directions = {
             1: (1, 0, 0),
             -1: (-1, 0, 0),

@@ -8,7 +8,7 @@ class HillClimber(RandomSolution):
         super().__init__(protein_sequence, num_valid_folds)
         self.max_iterations = max_iterations
 
-    def generate_neighbors(self, current_folding):
+    def generate_all_neighbors(self, current_folding):
         """
         Generate valid neighboring states by making small modifications to the current folding.
         Returns a list of (folding, score) tuples for valid neighbors.
@@ -46,7 +46,7 @@ class HillClimber(RandomSolution):
    
             iterations = 0
             while iterations < self.max_iterations:
-                neighbors = self.generate_neighbors(current_folding)
+                neighbors = self.generate_all_neighbors(current_folding)
                 
                 if not neighbors:
                     break

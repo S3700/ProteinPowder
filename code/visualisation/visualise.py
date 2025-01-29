@@ -19,6 +19,10 @@ def calculate_coordinates(protein, folding):
     Calculate all coordinates based on the folding sequence.
     Returns both the coordinates and a mapping of positions to indices.
     """
+    if folding is None:
+        print("Error: Folding is None.")
+        return False
+    
     directions = {
         1: (1, 0, 0), -1: (-1, 0, 0),
         2: (0, 1, 0), -2: (0, -1, 0),
@@ -74,6 +78,10 @@ def print_visual(protein, folding, graph):
     """
     Create visual representation of the protein folding in 3D.
     """
+    if folding is None:
+        print("Error: Folding is None.")
+        return False
+    
     # Calculate coordinates and create position mapping
     coords, position_to_index = calculate_coordinates(protein, folding)
     
