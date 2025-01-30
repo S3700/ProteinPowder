@@ -74,7 +74,7 @@ def plot_bonds(ax, coords, protein, position_to_index):
                     ax.plot([x1, x2], [y1, y2], [z1, z2], 
                            color=color, linestyle=style, linewidth=width, alpha=0.7)
 
-def print_visual(protein, folding, graph):
+def print_visual(protein, folding, graph, algorithm):
     """
     Create visual representation of the protein folding in 3D.
     """
@@ -96,6 +96,7 @@ def print_visual(protein, folding, graph):
     plot_bonds(ax, coords, protein, position_to_index)
     
     # Set labels and viewing angle
+    ax.set_title(f'Protein Folding for {protein}\nScore: {graph.calculate_score()}\n Algorithm: {algorithm.__name__}')
     ax.set_xlabel('X', fontsize=12)
     ax.set_ylabel('Y', fontsize=12)
     ax.set_zlabel('Z', fontsize=12)

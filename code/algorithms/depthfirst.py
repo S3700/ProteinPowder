@@ -1,5 +1,6 @@
 import time
 from code.classes.graph import Graph
+from code.classes.experiment import TimedExperiment
 
 class DepthFirst:
     def __init__(self, protein_sequence, num_valid_folds=1):
@@ -13,19 +14,7 @@ class DepthFirst:
         self.best_score = float('inf')
         self.all_scores = []
         self.chunk_size = 5
-        
-        # Initialize timing
-        self.start_time = None
-        self.max_runtime = float('inf')
-        
-        # Store best foldings for each chunk
         self.best_chunk_foldings = [[] for _ in range((len(protein_sequence) - 1 + self.chunk_size - 1) // self.chunk_size)]
-
-    def is_time_exceeded(self):
-        """
-        Checks if the maximum runtime has been exceeded.
-        """
-        return time.time() - self.start_time >= self.max_runtime
 
     def get_possible_directions(self, position_in_chunk):
         """
@@ -115,18 +104,6 @@ class DepthFirst:
         """
         Runs the search algorithm chunk by chunk.
         """
-        # Initialize timing
-        self.start_time = time.time()
-        
-        # Get max_runtime from experiment.py
-        import inspect
-        for frame in inspect.stack():
-            if 'experiment.py' in frame.filename:
-                locals_dict = frame.frame.f_locals
-                if 'self' in locals_dict and hasattr(locals_dict['self'], 'runtime'):
-                    self.max_runtime = locals_dict['self'].runtime
-                    break
-        
         # Start with empty folding
         current_foldings = [([], 0)]
         
