@@ -1,6 +1,6 @@
 # ProteinPow(d)er
 
-Een eiwit heeft een belangrijke regelfunctie in het menselijk lichaam en bestaat uit een keten van verschillende aminozuren: H-amino's, C-amino's en P-amino's. Deze ketens moeten op een specifieke manier ontvouwd worden om goed te functioneren; verkeerde ontvouwingen staan aan de basis van ernstige ziektes. De verschillende amino's maken verbindingen met hun indirecte, naastliggende 'buren'. H-amino's liggen graag naast andere H-amino's of naast C-amino's en andersom. H-H verbindingen en H-C/ C-H verbindingen zijn gelijkwaardig sterk. De sterkst mogelijke verbinding bestaat tussen twee C amino's. Om de medische wetenschap te ondersteunen, wordt er gezocht naar een eiwit met meeste verbindingen tussen de aminozuren en daarmee de beste ontvouwing(sscore).
+Een eiwit heeft een belangrijke regelfunctie in het menselijk lichaam en bestaat uit een keten van verschillende aminozuren: H-amino's, C-amino's en P-amino's. Deze ketens moeten op een specifieke manier ontvouwen worden om goed te functioneren; verkeerde ontvouwingen staan aan de basis van ernstige ziektes. De verschillende amino's maken verbindingen met hun indirecte, naastliggende 'buren'. H-amino's liggen graag naast andere H-amino's of naast C-amino's en andersom. H-H verbindingen en H-C/ C-H verbindingen zijn gelijkwaardig sterk. De sterkst mogelijke verbinding bestaat tussen twee C amino's. Om de medische wetenschap te ondersteunen, wordt er gezocht naar een eiwit met meeste verbindingen tussen de aminozuren en daarmee de beste ontvouwing(sscore).
 
 ## Aan de slag
 
