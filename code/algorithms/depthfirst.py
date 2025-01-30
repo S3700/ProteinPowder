@@ -1,130 +1,163 @@
+import time
 from code.classes.graph import Graph
-import random
-import math
 
-class DepthFirstSearch:
-    def __init__(self, protein_sequence, frame_size=5, max_folds=120, keep=0.025):
+class DepthFirst:
+    def __init__(self, protein_sequence, num_valid_folds=1):
+        """
+        Initialize the DepthFirstSearch algorithm for finding the best protein folding.
+        """
         self.protein_sequence = protein_sequence
-        self.frame_size = frame_size
-        self.max_folds = max_folds
-        self.keep = keep
-        self.graph = Graph(protein_sequence, 3) 
-
-    def generate_frames(self):
-        frame_sequences = {}
-        sequence_length = len(self.protein_sequence)
-
-        for i in range(1, sequence_length, self.frame_size):
-            end = min(i + self.frame_size, sequence_length)
-            frame_sequences[i // self.frame_size] = self.protein_sequence[i:end]
+        self.num_valid_folds = num_valid_folds
+        self.graph = Graph(protein_sequence)
+        self.best_folding = None
+        self.best_score = float('inf')
+        self.all_scores = []
+        self.chunk_size = 5
         
-        print(f"Generated {len(frame_sequences)} windows: {frame_sequences}")
-        return frame_sequences
+        # Initialize timing
+        self.start_time = None
+        self.max_runtime = float('inf')
+        
+        # Store best foldings for each chunk
+        self.best_chunk_foldings = [[] for _ in range((len(protein_sequence) - 1 + self.chunk_size - 1) // self.chunk_size)]
 
-    def dfs_r_frames(self, current_frame, num_r_frames):
+    def is_time_exceeded(self):
         """
-        Generate random folding sequences for the current frame.
+        Checks if the maximum runtime has been exceeded.
         """
-        random_frames = []
-        possible_directions = [1, -1, 2, -2, 3, -3]
+        return time.time() - self.start_time >= self.max_runtime
 
-        for _ in range(num_r_frames):
-            folding = []
-            for _ in current_frame:
-                direction = random.choice(possible_directions)
-                folding.append(direction)
-            random_frames.append(folding)
-
-        return random_frames
-
-    def evaluate_folding(self, folding):
+    def get_possible_directions(self, position_in_chunk):
         """
-        Evaluate a folding and return its score.
-        A lower score represents a better folding.
+        Heuristic adds constraints to the fifth amino in a chunk.
+        Returns possible directions based on position in chunk.
         """
-        self.graph.apply_folding(folding)
-        score = self.graph.calculate_score()  
-        return score
+        if position_in_chunk < 4:
+            return [1, -1, 2, -2, 3, -3]  # All directions allowed except 'up' for first four positions
+        else:
+            return [3]  # Only 'up' for fifth position
 
-    def dfs_cull(self, foldings, current_index):
+    def create_search_states(self, base_folding, base_score):
         """
-        Cull all sequences except the top 10% based on their scores.
+        Creates the initial search states container for DepthFirst.
         """
-        if not foldings:
-            print("No foldings to cull.")
-            return []
+        return [(base_folding, 0, base_score)]
 
-        print(f"Culling at window {current_index + 1}")
-
-        scores = [self.evaluate_folding(folding) for folding in foldings]
-        num_to_keep = max(1, int(len(scores) * self.keep)) 
-        sorted_foldings = sorted(zip(foldings, scores), key=lambda x: x[1])
-        culled_foldings = [folding for folding, score in sorted_foldings[:num_to_keep]]
-
-        print(f"Culled {len(foldings) - len(culled_foldings)} foldings below top {self.keep * 100}% scores.")
-
-        return culled_foldings
-
-    def dfs_recursive(self, frames, current_index, current_foldings):
+    def add_search_state(self, states, new_state):
         """
-        Recursive depth-first search to explore all possible foldings.
+        Adds a new state to the search states container.
+        For DepthFirst, appends to end (stack behavior).
         """
-        if current_index == len(frames):
-            return current_foldings
+        states.append(new_state)
 
-        foldings = []
-        random_foldings = self.dfs_r_frames(frames[current_index], self.max_folds)
-        culled_foldings = self.dfs_cull(random_foldings, current_index)
-
-        for folding in culled_foldings:
-            for prev_folding in current_foldings:
-                new_folding = prev_folding.copy()
-
-                if len(new_folding) > 0 and len(folding) > 0:
-                    new_folding[-1] = folding[0]
-
-                new_folding.extend(folding[1:])
-                foldings.append(new_folding)
-
-        return self.dfs_recursive(frames, current_index + 1, foldings)
-
-    def dfs(self):
+    def get_next_state(self, states):
         """
-        Perform depth-first search to explore all possible foldings.
+        Gets the next state from the search states container.
+        For DepthFirst, pops from end (stack behavior).
         """
-        frames = self.generate_frames()
-        initial_foldings = self.dfs_r_frames(frames[0], self.max_folds)
-        culled_foldings = self.dfs_cull(initial_foldings, 0)
-        all_foldings = self.dfs_recursive(frames, 1, culled_foldings)
-        return all_foldings
+        return states.pop()
 
-    def find_best_solution(self):
+    def process_valid_folding(self, best_foldings, best_score, current_folding, current_score):
         """
-        Find the best folding for the protein sequence using DFS.
+        Processes a valid folding and updates best_foldings if necessary.
         """
-        all_foldings = self.dfs()
-        best_folding = None
+        if current_score <= best_score:
+            if current_score < best_score:
+                best_foldings = []
+                best_score = current_score
+            best_foldings.append((current_folding.copy(), current_score))
+            
+            # Keep only top 10 best foldings
+            if len(best_foldings) > 10:
+                best_foldings.sort(key=lambda x: x[1])
+                best_foldings = best_foldings[:10]
+                
+        return best_foldings, best_score
+
+    def explore_chunk(self, chunk_index, base_foldings):
+        """
+        Explores all possibilities for a chunk using the search algorithm,
+        building upon the best foldings from the previous chunk.
+        """
+        start = chunk_index * self.chunk_size
+        end = min(start + self.chunk_size, len(self.protein_sequence) - 1)
+        chunk_length = end - start
+        
+        best_foldings = []
         best_score = float('inf')
-        all_scores = []
+        
+        for base_folding, base_score in base_foldings:
+            states = self.create_search_states(base_folding, base_score)
+            
+            while states and not self.is_time_exceeded():
+                current_folding, pos_in_chunk, current_score = self.get_next_state(states)
+                
+                # If we've completed this chunk
+                if pos_in_chunk == chunk_length:
+                    # Only add valid folds to best_foldings
+                    if self.graph.apply_folding(current_folding):
+                        score = self.graph.calculate_score()
+                        best_foldings, best_score = self.process_valid_folding(
+                            best_foldings, best_score, current_folding, score
+                        )
+                    continue
+                
+                # Try each possible direction
+                for direction in self.get_possible_directions(pos_in_chunk):
+                    new_folding = current_folding + [direction]
+                    if self.graph.apply_folding(new_folding):
+                        score = self.graph.calculate_score()
+                        self.add_search_state(states, (new_folding, pos_in_chunk + 1, score))
+        
+        return best_foldings
 
-        for folding in all_foldings:
-            score = self.evaluate_folding(folding)
-            all_scores.append(score)
-            if score < best_score:
-                best_score = score
-                best_folding = folding
+    def find_solutions(self):
+        """
+        Runs the search algorithm chunk by chunk.
+        """
+        # Initialize timing
+        self.start_time = time.time()
+        
+        # Get max_runtime from experiment.py
+        import inspect
+        for frame in inspect.stack():
+            if 'experiment.py' in frame.filename:
+                locals_dict = frame.frame.f_locals
+                if 'self' in locals_dict and hasattr(locals_dict['self'], 'runtime'):
+                    self.max_runtime = locals_dict['self'].runtime
+                    break
+        
+        # Start with empty folding
+        current_foldings = [([], 0)]
+        
+        # Process each chunk
+        num_chunks = (len(self.protein_sequence) - 1 + self.chunk_size - 1) // self.chunk_size
+        
+        for chunk_index in range(num_chunks):
+            if self.is_time_exceeded():
+                break
+            
+            # Explore current chunk based on best previous foldings
+            best_chunk_foldings = self.explore_chunk(chunk_index, current_foldings)
+            
+            if not best_chunk_foldings:
+                print(f"No valid foldings found for chunk {chunk_index + 1}")
+                break
+            
+            # Update current foldings for next chunk
+            current_foldings = best_chunk_foldings
+            
+            # Update best overall solution if we're at the last chunk
+            if chunk_index == num_chunks - 1:
+                self.best_folding = best_chunk_foldings[0][0]
+                self.best_score = best_chunk_foldings[0][1]
+                self.all_scores.append(self.best_score)
+        
+        # If no solution was found, return empty results
+        if not self.best_folding:
+            self.best_folding = []
+            self.best_score = 0
+        
+        return self.best_folding, self.best_score, self.all_scores
 
-        self.best_folding = best_folding
-        self.best_score = best_score
 
-        self.graph.apply_folding(self.best_folding)
-
-        print(f"Best selected folding: {self.best_folding}")
-        print(f"Protein sequence: {self.protein_sequence}")
-        print(f"Length of folding: {len(self.best_folding)}")
-        print(f"Length of protein: {len(self.protein_sequence)}")
-
-        return self.best_folding, self.best_score, all_scores
-
-    def __repr__(self):
-        return f"DepthFirst(sequence={self.protein_sequence}, dimension={self.dimension})"
